@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.horiz-menu > div {
+  display: inline-block;
+}
