@@ -4,27 +4,27 @@ export const dataBarChart = {
     {
       label: "Funding",
       backgroundColor: "#AF7",
-      data: [Math.random() * 100],
+      data: [12],
     },
     {
       label: "Funding NTB",
       backgroundColor: "#FA4",
-      data: [Math.random() * 100],
+      data: [19],
     },
     {
       label: "NTB CASA",
       backgroundColor: "#FF7",
-      data: [Math.random() * 100],
+      data: [3],
     },
     {
       label: "xx",
       backgroundColor: "#2A7",
-      data: [Math.random() * 100],
+      data: [17],
     },
     {
       label: "Non Financial",
       backgroundColor: "#f50057",
-      data: [Math.random() * 100],
+      data: [28],
     },
   ],
 };

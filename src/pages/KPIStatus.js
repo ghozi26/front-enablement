@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
-import { FormControl, InputLabel, Select, MenuItem} from "@material-ui/core";
+import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
 
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import BarChart from "../components/BarChart";
@@ -60,13 +60,18 @@ const KPIStatus = (props) => {
   };
 
   const hangleChangeCustomize = (e) => {
-    setCustomize(e.target.value)
-  }
+    setCustomize(e.target.value);
+  };
+
+  React.useEffect(() => {
+    console.log(props);
+  }, [props]);
 
   const renderChart = () => {
     console.log(chartType);
     let chart;
     if (chartType === 1 || chartType === 0) {
+      // chart = <BarChart data={props.dataChart} legendPosition={"bottom"} textTitle={""} />;
       chart = <BarChart data={dataBarChart} legendPosition={"bottom"} textTitle={""} />;
     } else if (chartType === 2) {
       chart = <PieChart data={dataPieChart} />;
@@ -78,10 +83,10 @@ const KPIStatus = (props) => {
     <Grid container spacing={2}>
       <Grid item xs={12} md={4} sm={12}>
         <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="demo-simple-select-label">Current Periode</InputLabel>
+          <InputLabel id="demo-simple-select-outlined-label">Periode</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
+            labelId="demo-simple-select-outlined-label"
+            id="demo-simple-select-outlined"
             value={currentPeriode}
             onChange={handleChangeCurrentPeriode}
             label="Periode"
@@ -96,19 +101,16 @@ const KPIStatus = (props) => {
       <Grid item xs={12} md={4} sm={12}>
         <Grid container direction="row">
           <Grid item xs={11} md={11} sm={11}>
-            <FormControl variant="outlined" className={classes.formControlInline}>
-              <InputLabel id="demo-simple-select-label">Historical Periode</InputLabel>
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="demo-simple-select-outlined-label-historical" style={{backgroundColor:'white', paddingRight:'3px'}}>Historical Periode</InputLabel>
               <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={historycalPeriode}
-                onChange={handleChangeHistorycalPeriode}
+                labelId="demo-simple-select-outlined-label-historical"
+                id="demo-simple-select-outlined"
+                value={currentPeriode}
+                onChange={handleChangeCurrentPeriode}
                 label="Periode"
               >
                 <MenuItem value={0}>-- Pilih Historical --</MenuItem>
-                {/* <MenuItem value={1}>Daily</MenuItem>
-                <MenuItem value={2}>Monthly</MenuItem>
-                <MenuItem value={3}>Yearly</MenuItem> */}
               </Select>
             </FormControl>
           </Grid>
@@ -121,7 +123,7 @@ const KPIStatus = (props) => {
       </Grid>
       <Grid item xs={12} md={4} sm={12}>
         <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="demo-simple-select-label">Chart Type</InputLabel>
+          <InputLabel id="demo-simple-select-label" style={{backgroundColor:'white', paddingRight:'3px'}}>Chart Type</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -182,7 +184,7 @@ const KPIStatus = (props) => {
         </Typography>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        {renderChart()}
+        {props.loadingChart ? <div>Loading</div> : renderChart()}
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Grid container direction="row">
