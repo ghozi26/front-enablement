@@ -4,9 +4,18 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
-import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
+import moment from "moment";
+
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import SlideshowIcon from "@material-ui/icons/Slideshow";
 import BarChart from "../components/BarChart";
 import PieChart from "../components/PieChart";
 import TableExpanded from "../components/TableExpanded";
@@ -37,18 +46,35 @@ const useStyles = makeStyles((theme) => ({
 const KPIStatus = (props) => {
   const classes = useStyles();
 
-  const [currentPeriode, setCurrentPeriode] = React.useState(0);
-  const [historycalPeriode, setHistorycalPeriode] = React.useState(0);
-  const [chartType, setChartType] = React.useState(0);
-  const [inRevenuePoint, setInRevenuePoint] = React.useState(0);
-  const [customize, setCustomize] = React.useState(0);
+  const {
+    currentPeriode,
+    setCurrentPeriode,
+    historycalPeriode,
+    setHistorycalPeriode,
+    chartType,
+    setChartType,
+    inRevenuePoint,
+    setInRevenuePoint,
+    customize,
+    setCustomize,
+    getBarChart,
+    getTable,
+    loadingTable,
+    dataTable,
+  } = props;
+
+  // const [currentPeriode, setCurrentPeriode] = React.useState(0);
+  // const [historycalPeriode, setHistorycalPeriode] = React.useState(new Date());
+  // const [chartType, setChartType] = React.useState(0);
+  // const [inRevenuePoint, setInRevenuePoint] = React.useState(0);
+  // const [customize, setCustomize] = React.useState(0);
 
   const handleChangeCurrentPeriode = (e) => {
     setCurrentPeriode(e.target.value);
   };
 
-  const handleChangeHistorycalPeriode = (e) => {
-    setHistorycalPeriode(e.target.value);
+  const handleChangeHistorycalPeriode = (date) => {
+    setHistorycalPeriode(date);
   };
 
   const handleChangeChartType = (e) => {
@@ -71,13 +97,18 @@ const KPIStatus = (props) => {
     console.log(chartType);
     let chart;
     if (chartType === 1 || chartType === 0) {
-      // chart = <BarChart data={props.dataChart} legendPosition={"bottom"} textTitle={""} />;
-      chart = <BarChart data={dataBarChart} legendPosition={"bottom"} textTitle={""} />;
+      chart = <BarChart data={props.dataChart} legendPosition={"bottom"} textTitle={""} />;
+      // chart = <BarChart data={dataBarChart} legendPosition={"bottom"} textTitle={""} />;
     } else if (chartType === 2) {
       chart = <PieChart data={dataPieChart} />;
     }
     return chart;
   };
+
+  const reRenderChartAndTable = async () => {
+    await getBarChart()
+    await getTable()
+  } 
 
   return (
     <Grid container spacing={2}>
@@ -98,32 +129,35 @@ const KPIStatus = (props) => {
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={12} md={4} sm={12}>
-        <Grid container direction="row">
-          <Grid item xs={11} md={11} sm={11}>
-            <FormControl variant="outlined" className={classes.formControl}>
-              <InputLabel id="demo-simple-select-outlined-label-historical" style={{backgroundColor:'white', paddingRight:'3px'}}>Historical Periode</InputLabel>
-              <Select
-                labelId="demo-simple-select-outlined-label-historical"
-                id="demo-simple-select-outlined"
-                value={currentPeriode}
-                onChange={handleChangeCurrentPeriode}
-                label="Periode"
-              >
-                <MenuItem value={0}>-- Pilih Historical --</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={1} md={1} sm={1}>
-            <IconButton color="secondary" aria-label="add an alarm" style={{ marginTop: "5px" }}>
-              <ArrowForwardIcon />
-            </IconButton>
-          </Grid>
+
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <Grid item xs={12} md={4} sm={12}>
+          <KeyboardDatePicker
+            style={{ width: "100%", marginTop: "4px" }}
+            disableToolbar
+            inputVariant="outlined"
+            variant="inline"
+            format="MM/dd/yyyy"
+            margin="none"
+            id="date-picker-inline"
+            label="Start Date"
+            value={historycalPeriode}
+            onChange={handleChangeHistorycalPeriode}
+            KeyboardButtonProps={{
+              "aria-label": "change date",
+            }}
+          />
         </Grid>
-      </Grid>
+      </MuiPickersUtilsProvider>
+
       <Grid item xs={12} md={4} sm={12}>
         <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="demo-simple-select-label" style={{backgroundColor:'white', paddingRight:'3px'}}>Chart Type</InputLabel>
+          <InputLabel
+            id="demo-simple-select-label"
+            style={{ backgroundColor: "white", paddingRight: "3px" }}
+          >
+            Chart Type
+          </InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -136,6 +170,23 @@ const KPIStatus = (props) => {
             <MenuItem value={2}>Pie</MenuItem>
           </Select>
         </FormControl>
+      </Grid>
+
+      <Grid item xs={12} sm={12} md={12}>
+        <Grid container direction="row" justify="center" alignItems="center">
+          <Grid item xs={4} sm={4} md={4} align={'center'} justify={'center'}>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.button}
+              style={{width:'50%'}}
+              startIcon={<SlideshowIcon />}
+              onClick={reRenderChartAndTable}
+            >
+              Show
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Typography
@@ -150,7 +201,7 @@ const KPIStatus = (props) => {
           }}
           gutterBottom
         >
-          Actual KPI Percentage as of 24 January 2020
+          Actual KPI Percentage as of {moment(new Date()).format("DD MMMM YYYY")}
         </Typography>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
@@ -191,7 +242,12 @@ const KPIStatus = (props) => {
           <Grid item xs={8} md={8} sm={8}>
             <div style={{ width: "30%" }}>
               <FormControl variant="outlined" className={classes.formControl}>
-                <InputLabel id="demo-simple-select-label">In Revenue Point</InputLabel>
+                <InputLabel
+                  id="demo-simple-select-label"
+                  style={{ backgroundColor: "#fff", paddingRight: "3px" }}
+                >
+                  In Revenue Point
+                </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
@@ -207,7 +263,12 @@ const KPIStatus = (props) => {
           <Grid item xs={2} md={2} sm={2}>
             <div style={{ width: "80%" }}>
               <FormControl variant="outlined" className={classes.formControl}>
-                <InputLabel id="demo-simple-select-label">Customize</InputLabel>
+                <InputLabel
+                  id="demo-simple-select-label"
+                  style={{ backgroundColor: "#fff", paddingRight: "3px" }}
+                >
+                  Customize
+                </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
@@ -240,7 +301,7 @@ const KPIStatus = (props) => {
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <div style={{ marginTop: "100px" }}>
-          <TableExpanded />
+          <TableExpanded loadingTable={loadingTable} dataTable={dataTable} />
         </div>
       </Grid>
     </Grid>

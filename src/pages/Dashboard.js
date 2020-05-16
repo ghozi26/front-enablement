@@ -16,6 +16,7 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import moment from "moment";
 
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountIcon from "@material-ui/icons/AccountCircle";
@@ -27,6 +28,8 @@ import TabPanel from "../components/TabPanel";
 
 import KPIStatus from "./KPIStatus";
 import BarChartService from "../services/BarChartService";
+import TableService from "../services/TableService";
+import { Menu, MenuItem } from "@material-ui/core";
 
 const drawerWidth = 240;
 
@@ -82,6 +85,7 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
+
   drawerPaperClose: {
     overflowX: "hidden",
     transition: theme.transitions.create("width", {
@@ -125,8 +129,20 @@ const Dashboard = (props) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [changePane, setChangePane] = React.useState(0);
+
+  const [dataTable, setDataTable] = React.useState({});
   const [dataChart, setDataChart] = React.useState({});
-  const [loadingChart, setLoadingChart] = React.useState(false);
+  const [loadingChart, setLoadingChart] = React.useState(true);
+  const [loadingTable, setLoadingTable] = React.useState(true);
+  const [currentPeriode, setCurrentPeriode] = React.useState(1);
+  const [historycalPeriode, setHistorycalPeriode] = React.useState(
+    moment(new Date()).format("MM/DD/YYYY")
+  );
+  const [chartType, setChartType] = React.useState(0);
+  const [inRevenuePoint, setInRevenuePoint] = React.useState(0);
+  const [customize, setCustomize] = React.useState(0);
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const hangleChangePane = (e, newValue) => {
     setChangePane(newValue);
@@ -148,16 +164,29 @@ const Dashboard = (props) => {
 
   const getBarChart = async () => {
     try {
-      const response = await BarChartService();
+      setLoadingChart(true);
+      const response = await BarChartService(
+        currentPeriode,
+        moment(historycalPeriode).format("MM/DD/YYYY"),
+        localStorage.getItem("salescode")
+      );
       if (response.status >= 200 && response.status < 300) {
-        const {datasets} = response.data.result
-        const dataTransform = datasets.map(x => [{...x}])
-        console.log(dataTransform)
-        setDataChart(response.data.result);
-        setLoadingChart(false)
+        console.log(response);
+        if (response.data.status !== false) {
+          const { datasets, labels } = response.data.result;
+          console.log(response.data.result);
+          const dataTransform = datasets.map((x) => ({ ...x, data: [x.data] }));
+          let objData = {};
+          objData["labels"] = labels;
+          objData["datasets"] = dataTransform;
+          console.log(objData);
+          setDataChart(objData);
+          setLoadingChart(false);
+        } else {
+          alert(response.data.result);
+        }
       } else {
         alert("error");
-        
       }
       console.log(response);
     } catch (error) {
@@ -166,10 +195,49 @@ const Dashboard = (props) => {
     }
   };
 
+  const getTable = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await TableService(
+        currentPeriode,
+        moment(historycalPeriode).format("MM/DD/YYYY"),
+        localStorage.getItem("salescode")
+      );
+      if (response.status >= 200 && response.status < 300) {
+        // console.log(response)
+        console.log(response.data.result);
+        setDataTable(response.data.result);
+        setLoadingTable(false);
+      } else {
+        alert("error");
+        setLoadingTable(false);
+      }
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      alert("error");
+      setLoadingTable(false);
+    }
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    props.history.push("/login");
+  };
+
   React.useEffect(() => {
-    // authCheck();
-    // getBarChart();
-  }, [props]);
+    authCheck();
+    getBarChart();
+    getTable();
+  }, [authCheck, props]);
 
   return (
     <div className={classes.root}>
@@ -216,10 +284,23 @@ const Dashboard = (props) => {
               <NotificationsIcon style={{ color: "#ffb74d", fontSize: "30px" }} />
             </Badge>
           </IconButton>
-          <IconButton style={{ textAlign: "right" }}>
+          <IconButton style={{ textAlign: "right" }} onClick={handleClick}>
             <AccountIcon style={{ fontSize: "30px" }} />
           </IconButton>
         </Toolbar>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          style={{ width: "1500px" }}
+        >
+          <MenuItem onClick={handleClose}>
+            Code Sales = {localStorage.getItem("salescode")}
+          </MenuItem>
+          <MenuItem onClick={logout}>Logout</MenuItem>
+        </Menu>
       </AppBar>
       <Drawer
         variant="permanent"
@@ -283,7 +364,24 @@ const Dashboard = (props) => {
                 </div>
 
                 <TabPanel value={changePane} index={0}>
-                  <KPIStatus dataChart={dataChart} loadingChart={loadingChart} />
+                  <KPIStatus
+                    dataChart={dataChart}
+                    loadingChart={loadingChart}
+                    loadingTable={loadingTable}
+                    dataTable={dataTable}
+                    currentPeriode={currentPeriode}
+                    setCurrentPeriode={setCurrentPeriode}
+                    historycalPeriode={historycalPeriode}
+                    setHistorycalPeriode={setHistorycalPeriode}
+                    chartType={chartType}
+                    setChartType={setChartType}
+                    inRevenuePoint={inRevenuePoint}
+                    setInRevenuePoint={setInRevenuePoint}
+                    customize={customize}
+                    setCustomize={setCustomize}
+                    getBarChart={getBarChart}
+                    getTable={getTable}
+                  />
                 </TabPanel>
                 <TabPanel value={changePane} index={1}>
                   Item Two

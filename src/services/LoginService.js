@@ -2,14 +2,12 @@ import {server, config} from '../utils/Server'
 import Axios from 'axios'
 
 
-const BarChartService = async(periodeType='2', periode='04/01/2020', salesCode='M8K') => {
-  const URL = `${server}incentiveapi/api/Frontliner/GetDataBarChart`
+const LoginService = async(salesCode) => {
+  const URL = `${server}incentiveapi/api/Frontliner/login`
   // const URL = `https://reactnative.dev/movies.json`
   // const URL = `https://reqres.in/api/users?page=2`
   const response = await Axios.get(URL, {
     params: {
-      periodeType,
-      periode,
       salesCode,
     },
   },
@@ -17,4 +15,4 @@ const BarChartService = async(periodeType='2', periode='04/01/2020', salesCode='
   return response;
 }
 
-export default BarChartService
+export default LoginService
