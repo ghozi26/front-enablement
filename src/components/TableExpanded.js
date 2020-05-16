@@ -65,9 +65,9 @@ const TableExpanded = (props) => {
     return <div>loading</div>;
   }
 
-  // if(!Array.dataTable){
-  //   return(<div>Data Not Found</div>)
-  // }
+  if(!Array.isArray(dataTable)){
+    return(<div>Data Not Found</div>)
+  }
 
   return (
     <React.Fragment>
@@ -87,10 +87,10 @@ const TableExpanded = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sampleData.map((row, idxParent) => (
+              {dataTable.map((row, idxParent) => (
                 <TableRow key={`${idxParent}-parent`} style={{ height: "50px" }}>
                   <TableCell style={{ width: "10%", fontWeight: "bold" }}>{row.kpi}</TableCell>
-                  {row.child1 === false || row.chil1 === "false" ? (
+                  {!Array.isArray(row.child1) ? (
                     <>
                       <TableCell>{row.space}</TableCell>
                       <TableCell style={{ width: "100px" }}>{row.weighted}</TableCell>
