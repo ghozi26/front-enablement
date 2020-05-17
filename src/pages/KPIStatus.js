@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -60,7 +60,15 @@ const KPIStatus = (props) => {
     getBarChart,
     getTable,
     loadingTable,
+    loadingChart,
     dataTable,
+    getPieChart,
+    getSummaryIncentive,
+    incentive,
+    setIncentive,
+    achivement,
+    setAchivement,
+    descChartData,
   } = props;
 
   // const [currentPeriode, setCurrentPeriode] = React.useState(0);
@@ -78,7 +86,19 @@ const KPIStatus = (props) => {
   };
 
   const handleChangeChartType = (e) => {
+    console.log('handleChangeChartType')
+    console.log(e.target.value)
     setChartType(e.target.value);
+    // await reRenderChartAndTable()
+    
+    if(e.target.value === 1 || e.target.value === 0){
+      getBarChart()
+    }else{
+      getPieChart()
+    }
+
+    getTable();
+    getSummaryIncentive();
   };
 
   const handleChangeInRevenuePoint = (e) => {
@@ -94,21 +114,56 @@ const KPIStatus = (props) => {
   }, [props]);
 
   const renderChart = () => {
-    console.log(chartType);
     let chart;
-    if (chartType === 1 || chartType === 0) {
-      chart = <BarChart data={props.dataChart} legendPosition={"bottom"} textTitle={""} />;
-      // chart = <BarChart data={dataBarChart} legendPosition={"bottom"} textTitle={""} />;
-    } else if (chartType === 2) {
-      chart = <PieChart data={dataPieChart} />;
+    if (loadingChart) {
+      chart = (
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "20px",
+            marginTop: "100px",
+            marginBottom: "100px",
+          }}
+        >
+          Loading
+        </div>
+      );
+    } else {
+      if (descChartData === "") {
+        if (chartType === 1 || chartType === 0) {
+          chart = <BarChart data={props.dataChart} legendPosition={"bottom"} textTitle={""} />;
+          // chart = <BarChart data={dataBarChart} legendPosition={"bottom"} textTitle={""} />;
+        } else if (chartType === 2) {
+          // chart = <PieChart data={dataPieChart} />;
+          chart = <PieChart data={props.dataChart} />;
+        }
+      } else {
+        chart = (
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "20px",
+              marginTop: "100px",
+              marginBottom: "100px",
+            }}
+          >
+            {descChartData}
+          </div>
+        );
+      }
     }
+
     return chart;
   };
 
   const reRenderChartAndTable = async () => {
-    await getBarChart()
-    await getTable()
-  } 
+    console.log('reRenderChartAndTable')
+    console.log(chartType)
+
+    chartType === 1 || chartType === 0 ? await getBarChart() : await getPieChart();
+    await getTable();
+    await getSummaryIncentive();
+  };
 
   return (
     <Grid container spacing={2}>
@@ -140,7 +195,7 @@ const KPIStatus = (props) => {
             format="MM/dd/yyyy"
             margin="none"
             id="date-picker-inline"
-            label="Start Date"
+            label="Date Periode"
             value={historycalPeriode}
             onChange={handleChangeHistorycalPeriode}
             KeyboardButtonProps={{
@@ -174,12 +229,12 @@ const KPIStatus = (props) => {
 
       <Grid item xs={12} sm={12} md={12}>
         <Grid container direction="row" justify="center" alignItems="center">
-          <Grid item xs={4} sm={4} md={4} align={'center'} justify={'center'}>
+          <Grid item xs={4} sm={4} md={4} align={"center"} justify={"center"}>
             <Button
               variant="contained"
               color="secondary"
               className={classes.button}
-              style={{width:'50%'}}
+              style={{ width: "50%" }}
               startIcon={<SlideshowIcon />}
               onClick={reRenderChartAndTable}
             >
@@ -201,7 +256,7 @@ const KPIStatus = (props) => {
           }}
           gutterBottom
         >
-          Actual KPI Percentage as of {moment(new Date()).format("DD MMMM YYYY")}
+          Actual KPI Percentage as of {moment(historycalPeriode).format("DD MMMM YYYY")}
         </Typography>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
@@ -231,11 +286,11 @@ const KPIStatus = (props) => {
           }}
           gutterBottom
         >
-          75%
+          {achivement}%
         </Typography>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        {props.loadingChart ? <div>Loading</div> : renderChart()}
+        {renderChart()}
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Grid container direction="row">

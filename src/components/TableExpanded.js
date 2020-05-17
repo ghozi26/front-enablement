@@ -62,11 +62,11 @@ const TableExpanded = (props) => {
   const classes = useStyles();
 
   if (loadingTable) {
-    return <div>loading</div>;
+    return <div style={{textAlign:'center', fontSize:'20px', marginBottom:'100px'}}>Loading</div>;
   }
 
   if(!Array.isArray(dataTable)){
-    return(<div>Data Not Found</div>)
+    return(<div style={{textAlign:'center', fontSize:'20px', marginBottom:'100px'}}>Data Not Found</div>)
   }
 
   return (
@@ -77,13 +77,13 @@ const TableExpanded = (props) => {
             <TableHead>
               <TableRow>
                 <TableCell style={{ fontWeight: "bold", width: "150px" }}>KPI</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "200px" }}>-</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "100px" }}>Weighted</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "300px" }}>Baseline</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "200px" }}>Actual</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "200px" }}>Target</TableCell>
-                <TableCell style={{ fontWeight: "bold", width: "250px" }}>Gap</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Insentive</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "350px" }}>-</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "150px" }}>Weighted</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "150px" }}>Baseline</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Actual</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Target</TableCell>
+                <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Gap</TableCell>
+                <TableCell style={{ fontWeight: "bold" }} align={'right'}>Insentive</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -92,50 +92,63 @@ const TableExpanded = (props) => {
                   <TableCell style={{ width: "10%", fontWeight: "bold" }}>{row.kpi}</TableCell>
                   {!Array.isArray(row.child1) ? (
                     <>
-                      <TableCell>{row.space}</TableCell>
-                      <TableCell style={{ width: "100px" }}>{row.weighted}</TableCell>
-                      <TableCell style={{ width: "300px" }}>{row.baseline}</TableCell>
-                      <TableCell style={{ width: "200px" }}>{row.actual}</TableCell>
-                      <TableCell style={{ width: "200px" }}>{row.target}</TableCell>
-                      <TableCell style={{ width: "250px" }}>{row.gap}</TableCell>
-                      <TableCell>{row.incentive}</TableCell>
+                      <TableCell style={{ width: "350px" }}>{row.space}</TableCell>
+                      <TableCell style={{ width: "150px" }}>{row.weighted}</TableCell>
+                      <TableCell style={{ width: "150px" }}>{row.baseline}</TableCell>
+                      <TableCell style={{ width: "150px" }} align={'right'}>{row.actual}</TableCell>
+                      <TableCell style={{ width: "150px" }} align={'right'}>{row.target}</TableCell>
+                      <TableCell style={{ width: "150px" }} align={'right'}>{row.gap}</TableCell>
+                      <TableCell style={{ width: "150px" }} align={'right'}>{row.incentive}</TableCell>
                     </>
                   ) : (
-                    <>
+                    <>  
                       <TableCell colSpan={7}>
                         <Table aria-label="simple table" padding={"none"}>
                           <TableBody>
                             {row.child1.map((e, idxChild1) => (
                               <>
-                                <TableRow key={`${idxChild1}-child1`} style={{ height: "50px" }}>
-                                  <TableCell style={{ width: "200px" }}>
+                                <TableRow key={`${e.id}-child1`} style={{ height: "50px" }} id={`${e.PK_KPI_ID}_${e.title1.replace(/ /g, "")}`}>
+                                  <TableCell style={{ width: "350px" }}>
                                     {Array.isArray(e.child2) ? (
                                       <>
                                         <IconButton
                                           aria-label="expand"
                                           className={classes.margin}
                                           onClick={() =>
-                                            changeExpand(`${idxChild1}_child1_to_child2`)
+                                            changeExpand(`${e.PK_KPI_ID}_${e.title1.replace(/ /g, "")}`)
                                           }
                                         >
                                           <ArrowDropDownIcon fontSize="small" />
                                         </IconButton>
                                       </>
-                                    ) : null}
+                                    ) : (
+                                      <>
+                                      <IconButton
+                                        aria-label="expand"
+                                        className={classes.margin}
+                                        color={'white'}
+                                        style={{color:'#fff', backgroundColor:'#fff'}}
+                                      >
+                                        <ArrowDropDownIcon fontSize="small" />
+                                      </IconButton>
+                                    </>
+                                    )}
                                     {e.title1}
                                   </TableCell>
-                                  <TableCell style={{ width: "100px" }}>{e.weighted1}</TableCell>
-                                  <TableCell style={{ width: "300px" }}>{e.baseline1}</TableCell>
-                                  <TableCell style={{ width: "200px" }}>{e.actual1}</TableCell>
-                                  <TableCell style={{ width: "200px" }}>{e.target1}</TableCell>
-                                  <TableCell style={{ width: "250px" }}>{e.gap1}</TableCell>
-                                  <TableCell>{e.incentive1}</TableCell>
+                                  <TableCell style={{ width: "150px" }}>{e.weighted1}</TableCell>
+                                  <TableCell style={{ width: "150px" }}>{e.baseline1}</TableCell>
+                                  <TableCell style={{ width: "150px" }} align={'right'}>{e.actual1}</TableCell>
+                                  <TableCell style={{ width: "150px" }} align={'right'}>{e.target1}</TableCell>
+                                  <TableCell style={e.gap1.includes('-') ? { width: "150px", color:'red' } : {width: "150px", color:'green'}} align={'right'}>{e.gap1}</TableCell>
+                                  <TableCell style={{ width: "150px" }} align={'right'}>{e.incentive1}</TableCell>
                                 </TableRow>
 
                                 {Array.isArray(e.child2)
                                   ? e.child2.map((d, idxChild2) => (
                                       <>
+
                                         <TableRow
+                                          id={`${d.PK_FRONT_GROUP_REVENUE_POINT_ID}_${d.title2.replace(/ /g, "")}`}
                                           key={`${idxChild2}-child2`}
                                           style={
                                             child2[`${idxChild1}_child1_to_child2`]
@@ -144,7 +157,7 @@ const TableExpanded = (props) => {
                                           }
                                         >
                                           <TableCell colSpan={3}>
-                                            <Collapse in={child2[`${idxChild1}_child1_to_child2`]} style={Array.isArray(d.child3) ? {paddingLeft:'15px'} : {paddingLeft:'50px'}}>
+                                            <Collapse in={child2[`${d.parent_id}_${e.title1.replace(/ /g, "")}`]} style={Array.isArray(d.child3) ? {paddingLeft:'15px'} : {paddingLeft:'50px'}}>
                                               {Array.isArray(d.child3) ? (
                                                 <>
                                                   <IconButton
@@ -152,47 +165,64 @@ const TableExpanded = (props) => {
                                                     className={classes.margin}
                                                     onClick={() =>
                                                       changeExpandChild3(
-                                                        `${idxChild2}_child2_to_child3`
+                                                        `${d.title2.replace(/ /g, "")}`
                                                       )
                                                     }
                                                   >
                                                     <ArrowDropDownIcon fontSize="small" />
                                                   </IconButton>
                                                 </>
-                                              ) : null}
+                                              ) : null
+                                              }
                                               {d.title2}
                                             </Collapse>
                                           </TableCell>
-                                          <TableCell colSpan={4}>
-                                            <Collapse in={child2[`${idxChild1}_child1_to_child2`]}>
+                                          <TableCell align={'right'}>
+                                            <Collapse in={child2[`${d.parent_id}_${e.title1.replace(/ /g, "")}`]}>
                                               {d.actual2}
                                             </Collapse>
                                           </TableCell>
+                                          <TableCell colSpan={3} align={'justify'}>
+                                            {/* <Collapse in={child2[`${idxChild1}_child1_to_child2`]}>
+                                              {d.actual2}
+                                            </Collapse> */}
+                                          </TableCell>
                                         </TableRow>
+
+
+
                                         {Array.isArray(d.child3)
                                           ? d.child3.map((dChild3, idxChild3) => (
                                               <TableRow
                                                 key={idxChild3}
                                                 style={
-                                                  child3[`${idxChild2}_child2_to_child3`]
+                                                  child3[`${d.title2.replace(/ /g, "")}`]
                                                     ? { height: "50px" }
                                                     : {}
                                                 }
+                                                id={`${idxChild2}_child2_to_child3`}
                                               >
                                                 <TableCell colSpan={3}>
                                                   <Collapse
-                                                    in={child3[`${idxChild2}_child2_to_child3`]}
+                                                    in={child3[`${d.title2.replace(/ /g, "")}`]}
                                                     style={{paddingLeft:'70px'}}
                                                   >
                                                     {dChild3.title3}
                                                   </Collapse>
                                                 </TableCell>
-                                                <TableCell colSpan={4}>
+                                                <TableCell colSpan={1} align={'right'}>
                                                   <Collapse
-                                                    in={child3[`${idxChild2}_child2_to_child3`]}
+                                                    in={child3[`${d.title2.replace(/ /g, "")}`]}
                                                   >
                                                     {dChild3.actual3}
                                                   </Collapse>
+                                                </TableCell>
+                                                <TableCell colSpan={3}>
+                                                  {/* <Collapse
+                                                    in={child3[`${idxChild2}_child2_to_child3`]}
+                                                  >
+                                                    {dChild3.actual3}
+                                                  </Collapse> */}
                                                 </TableCell>
                                               </TableRow>
                                             ))

@@ -17,6 +17,7 @@ import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import moment from "moment";
+import numeral from 'numeral'
 
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountIcon from "@material-ui/icons/AccountCircle";
@@ -30,6 +31,8 @@ import KPIStatus from "./KPIStatus";
 import BarChartService from "../services/BarChartService";
 import TableService from "../services/TableService";
 import { Menu, MenuItem } from "@material-ui/core";
+import PieChartService from "../services/PieChartService";
+import SummaryIncentiveService from "../services/SummaryIncentiveService";
 
 const drawerWidth = 240;
 
@@ -141,6 +144,9 @@ const Dashboard = (props) => {
   const [chartType, setChartType] = React.useState(0);
   const [inRevenuePoint, setInRevenuePoint] = React.useState(0);
   const [customize, setCustomize] = React.useState(0);
+  const [incentive, setIncentive] = React.useState("0");
+  const [achivement, setAchivement] = React.useState("0");
+  const [descChartData, setDescChartData] = React.useState('')
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -158,8 +164,7 @@ const Dashboard = (props) => {
 
   const authCheck = React.useCallback(() => {
     let myStorage = localStorage.getItem("loggedIn");
-    console.log(myStorage);
-    return !myStorage ? props.history.push("Login") : false;
+    return !myStorage ? props.history.push("login") : false;
   }, [props.history]);
 
   const getBarChart = async () => {
@@ -171,27 +176,65 @@ const Dashboard = (props) => {
         localStorage.getItem("salescode")
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log(response);
         if (response.data.status !== false) {
           const { datasets, labels } = response.data.result;
-          console.log(response.data.result);
           const dataTransform = datasets.map((x) => ({ ...x, data: [x.data] }));
           let objData = {};
           objData["labels"] = labels;
           objData["datasets"] = dataTransform;
           console.log(objData);
           setDataChart(objData);
+          setDescChartData('')
           setLoadingChart(false);
         } else {
-          alert(response.data.result);
+          // alert(response.data.result);
+          setDescChartData(response.data.result)
+          setLoadingChart(false);
         }
       } else {
-        alert("error");
+        // alert("error");
+        setDescChartData('error')
+        setLoadingChart(false);
+
       }
       console.log(response);
     } catch (error) {
       console.log(error);
-      alert("error");
+      // alert("error");
+      setDescChartData('error')
+      setLoadingChart(false);
+    }
+  };
+
+  const getPieChart = async () => {
+    try {
+      setLoadingChart(true);
+      const response = await PieChartService(
+        currentPeriode,
+        moment(historycalPeriode).format("MM/DD/YYYY"),
+        localStorage.getItem("salescode")
+      );
+      if (response.status >= 200 && response.status < 300) {
+        console.log(response);
+        if (response.data.status !== false) {
+          setDataChart(response.data.result);
+          setLoadingChart(false);
+        } else {
+          // alert(response.data.result);
+          setLoadingChart(false);
+          setDescChartData(response.data.result)
+        }
+      } else {
+        // alert("error");
+        setDescChartData('error')
+        setLoadingChart(false);
+      }
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      // alert("error");
+      setDescChartData("error")
+      setLoadingChart(false);
     }
   };
 
@@ -204,8 +247,6 @@ const Dashboard = (props) => {
         localStorage.getItem("salescode")
       );
       if (response.status >= 200 && response.status < 300) {
-        // console.log(response)
-        console.log(response.data.result);
         setDataTable(response.data.result);
         setLoadingTable(false);
       } else {
@@ -214,9 +255,31 @@ const Dashboard = (props) => {
       }
       console.log(response);
     } catch (error) {
-      console.log(error);
-      alert("error");
+      console.log(error.response);
+      // alert("error");
       setLoadingTable(false);
+    }
+  };
+
+  const getSummaryIncentive = async () => {
+    try {
+      const response = await SummaryIncentiveService(
+        currentPeriode,
+        moment(historycalPeriode).format("MM/DD/YYYY"),
+        localStorage.getItem("salescode")
+      );
+      if (response.status >= 200 && response.status < 300) {
+        console.log(response);
+        if (response.status) {
+          setIncentive(numeral(response.data.result.Incentive).format("0, 0"));
+          setAchivement(response.data.result.Achivement);
+        }
+      } else {
+        setLoadingTable(false);
+        console.log(response);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -234,9 +297,10 @@ const Dashboard = (props) => {
   };
 
   React.useEffect(() => {
+    console.log(localStorage.getItem("salescode"));
     authCheck();
-    getBarChart();
-    getTable();
+    // getBarChart();
+    // getTable();
   }, [authCheck, props]);
 
   return (
@@ -266,7 +330,7 @@ const Dashboard = (props) => {
             className={classes.title}
             style={{ textAlign: "right", marginLeft: "auto", marginRight: "30px" }}
           >
-            Indicative Financial KPI Achievment : <span style={{ color: "#009688" }}>70%</span>
+            Indicative Financial KPI Achievment : <span style={{ color: "#009688" }}>{achivement}%</span>
           </Typography>
           <Divider orientation={"vertical"} flexItem />
           <Typography
@@ -277,7 +341,7 @@ const Dashboard = (props) => {
             className={classes.title}
             style={{ textAlign: "right", marginLeft: "30px", marginRight: "30px" }}
           >
-            Total Indicative Incentive : <span style={{ color: "#ffb74d" }}>Rp 30.000.000</span>
+            Total Indicative Incentive : <span style={{ color: "#ffb74d" }}>Rp {incentive}</span>
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
@@ -381,17 +445,19 @@ const Dashboard = (props) => {
                     setCustomize={setCustomize}
                     getBarChart={getBarChart}
                     getTable={getTable}
+                    getPieChart={getPieChart}
+                    getSummaryIncentive={getSummaryIncentive}
+                    incentive={incentive}
+                    setIncentive={setIncentive}
+                    achivement={achivement}
+                    setAchivement={setAchivement}
+                    descChartData={descChartData}
+                    setDescChartData={setDescChartData}
                   />
                 </TabPanel>
-                <TabPanel value={changePane} index={1}>
-                  Item Two
-                </TabPanel>
-                <TabPanel value={changePane} index={2}>
-                  Item Three
-                </TabPanel>
-                <TabPanel value={changePane} index={3}>
-                  Item Four
-                </TabPanel>
+                <TabPanel value={changePane} index={1}></TabPanel>
+                <TabPanel value={changePane} index={2}></TabPanel>
+                <TabPanel value={changePane} index={3}></TabPanel>
               </Paper>
             </Grid>
           </Grid>
