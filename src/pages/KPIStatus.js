@@ -188,6 +188,7 @@ const KPIStatus = (props) => {
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <Grid item xs={12} md={4} sm={12}>
           <KeyboardDatePicker
+            autoOk
             style={{ width: "100%", marginTop: "4px" }}
             disableToolbar
             inputVariant="outlined"
@@ -198,9 +199,9 @@ const KPIStatus = (props) => {
             label="Date Periode"
             value={historycalPeriode}
             onChange={handleChangeHistorycalPeriode}
-            KeyboardButtonProps={{
-              "aria-label": "change date",
-            }}
+            // KeyboardButtonProps={{
+            //   "aria-label": "change date",
+            // }}
           />
         </Grid>
       </MuiPickersUtilsProvider>

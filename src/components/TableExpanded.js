@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHead,
@@ -38,25 +38,70 @@ const theme = createMuiTheme({
 const TableExpanded = (props) => {
   const [child2, setChild2] = useState({});
   const [child3, setChild3] = useState({});
-
   const { dataTable, loadingTable } = props;
 
-  const changeExpand = (data) => {
-    if (child2[data] === true) {
-      setChild2({ [data]: false });
-    } else {
-      setChild2({ [data]: true });
+  let dumpArray = []
+
+  const changeExpand = (data, childArray) => {
+    console.log(childArray)
+    
+    if(Object.keys(child3).length === 0){
+      console.log('kosong')
+      console.log(child3)
+      if (child2[data] === true) {
+        console.log('kosong true')
+        for(let i = 0; i < childArray.length; i++){
+          if(child3[`${childArray[i].title2.replace(/ /g, "")}`]){
+            setChild3({...child3, [childArray[i].title2.replace(/ /g, "")] : false})
+          }
+        }
+        setChild2({...child2, [data]: false });
+      } else {
+        console.log('kosong false')
+        setChild2({...child2, [data] : true})
+      }
+
+    }else{
+      console.log(child3)
+      console.log('isi')
+      if(Object.keys(child2).length === 0){
+        console.log('isi true')
+        setChild2({ ...child2, [data]: true });
+        for(let i = 0; i < childArray.length; i++){
+          if(child3[`${childArray[i].title2.replace(/ /g, "")}`]){
+            setChild3({...child3, [childArray[i].title2.replace(/ /g, "")] : false})
+          }
+        }
+      }else{
+        console.log('isi false')
+        if(child2[data] === true){
+          for(let i = 0; i < childArray.length; i++){
+            if(child3[`${childArray[i].title2.replace(/ /g, "")}`]){
+              setChild3({...child3, [childArray[i].title2.replace(/ /g, "")] : false})
+            }
+          }
+          setChild2({...child2, [data]: false})
+        }else{
+          console.log('sini cou')
+          for(let i = 0; i < childArray.length; i++){
+            if(child3[`${childArray[i].title2.replace(/ /g, "")}`]){
+              setChild3({...child3, [childArray[i].title2.replace(/ /g, "")] : false})
+            }
+          }
+          setChild2({...child2, [data]: true})
+        }
+
+      }
     }
-    console.log(child2);
   };
+
 
   const changeExpandChild3 = (data) => {
     if (child3[data] === true) {
-      setChild3({ [data]: false });
+      setChild3({ ...child3, [data]: false });
     } else {
-      setChild3({ [data]: true });
+      setChild3({ ...child3, [data]: true });
     }
-    console.log(child3);
   };
 
   const classes = useStyles();
@@ -71,6 +116,8 @@ const TableExpanded = (props) => {
 
   return (
     <React.Fragment>
+      <button onClick={() => console.log(child2)}>test</button>
+      {/* <button onClick={() => console.log(children)}>children</button> */}
       <MuiThemeProvider theme={theme}>
         <TableContainer>
           <Table aria-label="simple table" padding={"none"}>
@@ -83,7 +130,7 @@ const TableExpanded = (props) => {
                 <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Actual</TableCell>
                 <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Target</TableCell>
                 <TableCell style={{ fontWeight: "bold", width: "150px" }} align={'right'}>Gap</TableCell>
-                <TableCell style={{ fontWeight: "bold" }} align={'right'}>Insentive</TableCell>
+                <TableCell style={{ fontWeight: "bold" }} align={'right'}>Incentive</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -107,7 +154,7 @@ const TableExpanded = (props) => {
                           <TableBody>
                             {row.child1.map((e, idxChild1) => (
                               <>
-                                <TableRow key={`${e.id}-child1`} style={{ height: "50px" }} id={`${e.PK_KPI_ID}_${e.title1.replace(/ /g, "")}`}>
+                                <TableRow key={`${e.id}-child1`} style={{ height: "50px" }} id={`${e.title1.replace(/ /g, "")}`}>
                                   <TableCell style={{ width: "350px" }}>
                                     {Array.isArray(e.child2) ? (
                                       <>
@@ -115,7 +162,8 @@ const TableExpanded = (props) => {
                                           aria-label="expand"
                                           className={classes.margin}
                                           onClick={() =>
-                                            changeExpand(`${e.PK_KPI_ID}_${e.title1.replace(/ /g, "")}`)
+                                            // changeExpand(`${e.title1.replace(/ /g, "")}`, e.child2)
+                                            changeExpand(`${e.title1.replace(/ /g, "")}`, e.child2)
                                           }
                                         >
                                           <ArrowDropDownIcon fontSize="small" />
@@ -133,7 +181,7 @@ const TableExpanded = (props) => {
                                       </IconButton>
                                     </>
                                     )}
-                                    {e.title1}
+                                    {e.title1} -child1
                                   </TableCell>
                                   <TableCell style={{ width: "150px" }}>{e.weighted1}</TableCell>
                                   <TableCell style={{ width: "150px" }}>{e.baseline1}</TableCell>
@@ -157,7 +205,7 @@ const TableExpanded = (props) => {
                                           }
                                         >
                                           <TableCell colSpan={3}>
-                                            <Collapse in={child2[`${d.parent_id}_${e.title1.replace(/ /g, "")}`]} style={Array.isArray(d.child3) ? {paddingLeft:'15px'} : {paddingLeft:'50px'}}>
+                                            <Collapse in={child2[`${e.title1.replace(/ /g, "")}`]} style={Array.isArray(d.child3) ? {paddingLeft:'15px'} : {paddingLeft:'50px'}}>
                                               {Array.isArray(d.child3) ? (
                                                 <>
                                                   <IconButton
@@ -178,7 +226,7 @@ const TableExpanded = (props) => {
                                             </Collapse>
                                           </TableCell>
                                           <TableCell align={'right'}>
-                                            <Collapse in={child2[`${d.parent_id}_${e.title1.replace(/ /g, "")}`]}>
+                                            <Collapse in={child2[`${e.title1.replace(/ /g, "")}`]}>
                                               {d.actual2}
                                             </Collapse>
                                           </TableCell>
@@ -200,7 +248,7 @@ const TableExpanded = (props) => {
                                                     ? { height: "50px" }
                                                     : {}
                                                 }
-                                                id={`${idxChild2}_child2_to_child3`}
+                                                id={`${d.title2.replace(/ /g, "")}`}
                                               >
                                                 <TableCell colSpan={3}>
                                                   <Collapse
