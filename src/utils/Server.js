@@ -1,4 +1,4 @@
-export const server = 'http://nawapocsvr.japaneast.cloudapp.azure.com/'
+export const server = 'http://nawadata.japaneast.cloudapp.azure.com/'
 
 export const config = {
   headers: {
