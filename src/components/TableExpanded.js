@@ -116,7 +116,7 @@ const TableExpanded = (props) => {
 
   return (
     <React.Fragment>
-      <button onClick={() => console.log(child2)}>test</button>
+      {/* <button onClick={() => console.log(child2)}>test</button> */}
       {/* <button onClick={() => console.log(children)}>children</button> */}
       <MuiThemeProvider theme={theme}>
         <TableContainer>
@@ -181,7 +181,8 @@ const TableExpanded = (props) => {
                                       </IconButton>
                                     </>
                                     )}
-                                    {e.title1} -child1
+                                    {/* {e.title1} -child1 */}
+                                    {e.title1}
                                   </TableCell>
                                   <TableCell style={{ width: "150px" }}>{e.weighted1}</TableCell>
                                   <TableCell style={{ width: "150px" }}>{e.baseline1}</TableCell>
